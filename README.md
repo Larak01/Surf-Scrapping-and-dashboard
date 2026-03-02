@@ -1,36 +1,54 @@
 # 🏄‍♂️ Surf Dashboard : Lacanau Real-Time Monitoring
 
-[cite_start]Ce projet propose un outil d'aide à la décision haut de gamme pour surveiller les conditions de surf à **Lacanau** en temps réel[cite: 5]. [cite_start]Il automatise l'ensemble du pipeline de données, de l'extraction au rendu visuel[cite: 6].
+Ce projet propose un outil d'aide à la décision haut de gamme pour surveiller les conditions de surf à **Lacanau** en temps réel. Il automatise l'ensemble du pipeline de données, de l'extraction (scraping) à la visualisation interactive.
+
+---
 
 ## ⚙️ Architecture du Projet
 
-[cite_start]Le système utilise une approche hybride combinant la puissance de **Python** et de **R**[cite: 8]:
+Le système utilise une approche hybride combinant la puissance de **Python** et de **R** :
 
-* [cite_start]**surf_scrap.py** : Moteur de scraping personnalisé ciblant *surf-report.com*[cite: 9]. [cite_start]Il extrait les données directement depuis les objets JSON JavaScript internes[cite: 10].
-* [cite_start]**Projet_Surf.Rmd** : Le cœur de l'application (Flexdashboard) qui orchestre le workflow et génère l'interface[cite: 11, 12].
-* **main.py** : Script de contrôle pour l'exécution des processus Python.
-* [cite_start]**data_surf.csv** : Le flux de données généré servant de base aux visualisations[cite: 11].
+* **surf_scrap.py** : Moteur de scraping personnalisé ciblant surf-report.com. Il extrait les données directement depuis les objets JSON JavaScript internes.
+* **Projet_Surf.Rmd** : Le cœur de l'application (Flexdashboard) qui orchestre le workflow, appelle les scripts Python et génère l'interface.
+* **main.py** : Script de contrôle principal pour l'exécution des processus Python.
+* **data_surf.csv** : Le flux de données généré après traitement, servant de base aux visualisations.
+
+---
 
 ## 📊 Pipeline de Données & Logique KPI
 
-[cite_start]Le tableau de bord transforme les données brutes en indicateurs exploitables[cite: 14]:
+Le tableau de bord transforme les données brutes en indicateurs exploitables :
 
-1.  [cite_start]**Nettoyage des Métriques** : Les valeurs numériques sont isolées des chaînes de caractères complexes (unités comme km/h ou m)[cite: 18].
-2.  [cite_start]**Algorithme "Sea Quality Grade"** : Une jauge de qualité sur **100 points** basée sur la hauteur des vagues, la vitesse et la direction du vent[cite: 21, 23].
+### 1. Nettoyage des Métriques
+Les valeurs numériques sont isolées des chaînes de caractères complexes (unités comme km/h ou m) via une logique de parsing automatique.
+
+### 2. Algorithme "Sea Quality Grade"
+Une jauge de qualité de la mer est calculée sur une échelle de **100 points** selon les critères suivants :
+* **+40** si la hauteur de vagues $\ge 1.0m$.
+* **+30** si la vitesse du vent $\le 50km/h$.
+* **+30** si la direction du vent contient "North".
+
+---
 
 ## 🎨 Design de l'Interface
 
-[cite_start]L'interface utilisateur a été conçue pour être immersive[cite: 26]:
-* **Thème Dark Mode** : Utilisation du code couleur `#001219` (Deep Ocean)[cite: 27].
-* [cite_start]**Glassmorphism** : Effets de flou sur des calques translucides pour une lisibilité optimale[cite: 28].
-* [cite_start]**Visualisation Dynamique** : Intégration de **Plotly** pour explorer les prévisions sur 7 jours[cite: 29].
+L'interface utilisateur a été conçue pour être immersive et moderne :
+
+* **Thème Dark Mode** : Utilisation du code couleur `#001219` (Deep Ocean) pour le confort visuel.
+* **Glassmorphism** : Effets de flou (`backdrop-blur`) sur des calques translucides pour une lisibilité optimale.
+* **Visualisation Dynamique** : Intégration de **Plotly** pour explorer l'historique et les prévisions sur 7 jours.
+
+---
 
 ## 🚀 Installation et Utilisation
 
-1.  [cite_start]Placez tous les fichiers dans le même répertoire[cite: 32].
-2.  [cite_start]Ouvrez **Projet_Surf.Rmd** dans RStudio[cite: 33].
-3.  [cite_start]Cliquez sur **Knit** pour générer le dashboard HTML[cite: 34].
+Pour lancer le dashboard sur votre machine :
+
+1.  Clonez le dépôt et assurez-vous que tous les fichiers (`.Rmd`, `.py`, `.csv`) se trouvent dans le même dossier.
+2.  Ouvrez **Projet_Surf.Rmd** dans RStudio.
+3.  Exécutez la commande **Knit** pour générer le dashboard interactif au format HTML.
 
 ---
-[cite_start]**Auteurs :** Rim BOUAOUISS & Lara AL KHATIB [cite: 2]  
-[cite_start]**Dernière mise à jour :** Janvier 2026 [cite: 4]
+
+**Développeurs :** Rim BOUAOUISS & Lara AL KHATIB  
+**Date :** Janvier 2026
