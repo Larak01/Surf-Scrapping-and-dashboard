@@ -1,0 +1,234 @@
+---
+title: "OUR DASHBOARD"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    theme: cosmo
+    logo: 'surf_logo.png'
+---
+
+<style>
+/* Fond général du dashboard */
+body {
+  background-color: #001219 !important;
+}
+
+.navbar {
+  background-image: linear-gradient(to right, #005f73, #0a9396, #001219) !important;
+  border: none;
+}
+
+/* 1. Images de fond pour les 3 blocs */
+#meilleur-moment {
+  background: url('surfeur_sur_vague.png') no-repeat center center / cover !important;
+}
+
+#plus-haute-vague {
+  background: url('surfeur_sur_vague2.png') no-repeat center center / cover !important;
+}
+
+#qualite-mer {
+  background: url('surf3.jpg') no-repeat center center / cover !important;
+}
+
+/* Harmonisation de TOUS les titres (ValueBoxes, Jauge et Titres de graphiques/tableaux) */
+.value-box .value, 
+.value-box .caption, 
+#qualite-mer .chart-title,
+#titre-vagues .chart-title,
+#titre-vent .chart-title,
+#titre-tableau .chart-title {
+  color: #ffffff !important; 
+  text-shadow: 2px 2px 10px rgba(0,0,0,1) !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  opacity: 1 !important;
+  font-size: 18px !important; /* Taille ajustée pour les titres de graphique */
+}
+
+/* On force le conteneur du titre à être transparent aussi */
+.chart-title {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+}
+/* 3. Diminuer la taille du texte spécifiquement pour le Meilleur Moment */
+#meilleur-moment .value {
+  font-size: 22px !important; /* Ajustez ce chiffre selon vos besoins */
+}
+
+/* 4. Changer les couleurs de la jauge (enlever l'orange) */
+.gauge svg text {
+  fill: white !important; /* Chiffres de la jauge en blanc */
+  font-weight: bold;
+}
+
+.gauge svg path {
+  stroke-width: 12; /* Jauge plus épaisse */
+}
+/* Rendre les blocs de graphiques et tableaux transparents comme le fond */
+.chart-wrapper, .chart-stage {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 15px !important;
+}
+
+/* Forcer le texte du tableau et des infos en blanc */
+.dataTables_wrapper, .dataTables_info, .dataTables_paginate, .dataTables_filter, .dataTables_length {
+  color: white !important;
+}
+
+/* Style du tableau : fond transparent, texte blanc et bordures blanches */
+table.dataTable {
+  background-color: transparent !important;
+  color: white !important;
+  border: 1px solid white !important;
+}
+
+table.dataTable tbody tr {
+  background-color: transparent !important;
+}
+
+table.dataTable thead th {
+  color: #7FFFD4 !important; /* Turquoise pour les titres pour le style */
+  border-bottom: 1px solid white !important;
+}
+
+/* Bordures blanches des cases du tableau */
+table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
+  border-top: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+</style>
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(reticulate)
+library(plotly)
+library(DT)
+#py_install(c("requests", "beautifulsoup4", "pandas"))
+
+# 1. EXECUTION DU SCRIPT PYTHON
+# On utilise reticulate pour appeler votre fonction Python
+source_python("surf_scrap.py")
+scrap_to_csv("https://www.surf-report.com/meteo-surf/lacanau-s1043.html", "data_surf.csv")
+
+# 2. IMPORT ET PREPARATION DES DONNEES
+data <- read_csv("data_surf.csv") %>%
+  mutate(
+    wave_num = as.numeric(waves_size),
+    # Nettoyage du vent pour les calculs (on extrait le chiffre entre les \n)
+    wind_num = as.numeric(str_extract(wind_speed, "[0-9.]+")),
+    # Variable pour l'axe X des graphiques (combinaison Jour + Heure)
+    time_label = paste(day, hour),
+    idx = row_number() 
+  
+  )
+
+# 3. CALCUL DES KPIs
+# A. Plus haute vague
+max_wave <- max(data$wave_num, na.rm = TRUE)
+
+# B. Meilleur moment (Critères : vague >= 1m, vent <= 50km/h, vent du Nord)
+
+best_spots <- data %>%
+  filter(wave_num >= 1.0, 
+         wind_num <= 50, 
+         str_detect(wind_direction, "Nord") | str_detect(wind_direction, "N"))
+
+
+if(nrow(best_spots) == 0) {
+  best_moment <- data[which.max(data$wave_num), ]
+} else {
+  best_moment <- best_spots[1, ] 
+}
+```
+
+Row {data-height=180}
+-----------------------------------------------------------------------
+
+### Meilleur Moment de la semaine {#meilleur-moment}
+```{r}
+valueBox(paste(best_moment$day, "-", best_moment$hour), 
+         caption = "Moment idéal pour surfer",
+       )
+        
+```
+
+### Plus haute vague (Moyenne) {#plus-haute-vague}
+```{r}
+valueBox(paste(max_wave, "m"), 
+         caption = "Hauteur maximale (Moyenne)",
+         )
+
+```
+
+### Qualité de la mer {#qualite-mer}
+```{r}
+# 40 pts si vague >= 1m, 30 pts si vent <= 50, 30 pts si vent du Nord
+score <- 0
+if(best_moment$wave_num >= 1.0) score <- score + 40
+if(best_moment$wind_num <= 50) score <- score + 30
+if(str_detect(best_moment$wind_direction, "Nord")) score <- score + 30
+
+gauge(score, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(70, 100), warning = c(40, 69), danger = c(0, 39),
+  colors = c("#F0FFFF", "#00CED1", "#40E0D0")
+))
+```
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Évolution de la taille des vagues {#titre-vagues}
+```{r}
+p1 <- ggplot(data, aes(x = idx, y = wave_num, text = time_label)) +
+  geom_line(color = "#0a9396", size = 1) +
+  geom_point(color = "#94d2bd") +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    panel.background = element_rect(fill = "transparent", color = NA),
+    text = element_text(color = "white"),
+    axis.text = element_text(color = "white"),
+    panel.grid.major = element_line(color = "rgba(255,255,255,0.1)"),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = "Chronologie (7 jours)", y = "Hauteur (m)")
+
+ggplotly(p1, tooltip = "text")
+```
+
+### Évolution de la vitesse du vent {#titre-vent}
+```{r}
+p2 <- ggplot(data, aes(x = idx, y = wind_num, text = time_label, group = 1)) +
+  geom_area(fill = "#0a9396", alpha = 0.4) +
+  geom_line(color = "#94d2bd", size = 1) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    panel.background = element_rect(fill = "transparent", color = NA),
+    text = element_text(color = "white"),
+    panel.grid.major = element_line(color = "#005f73"),
+    axis.text = element_text(color = "white"),
+    panel.grid.minor = element_blank()
+  ) +
+  labs(x = "Prévisions (7 jours)", y = "Vitesse (km/h)")
+
+ggplotly(p2, tooltip = "text")
+```
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Tableau détaillé des prévisions {#titre-tableau}
+```{r}
+
+data %>%
+  select(day, hour, waves_size, wind_direction) %>%
+  datatable(options = list(pageLength = 6, dom = 'tip'), 
+            colnames = c("Jour", "Heure", "Taille (m)", "Orientation Vent"),
+            class = 'stripe hover cell-border')
+```
