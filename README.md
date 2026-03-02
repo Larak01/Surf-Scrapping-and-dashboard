@@ -1,1 +1,36 @@
-🏄‍♂️ Surf Dashboard : Lacanau Real-Time MonitoringCe projet propose un outil d'aide à la décision haut de gamme pour surveiller les conditions de surf à Lacanau en temps réel. Il automatise l'ensemble du pipeline de données, de l'extraction (scraping) à la visualisation interactive.⚙️ Architecture du ProjetLe système utilise une approche hybride combinant la puissance de Python pour la data et de R pour l'interface utilisateur.Structure des Fichierssurf_scrap.py : Moteur de scraping personnalisé ciblant surf-report.com. Il extrait les données structurées directement depuis les objets JSON JavaScript internes pour garantir l'intégrité des données.Projet_Surf.Rmd : Le cœur de l'application (Flexdashboard) qui orchestre le workflow, appelle les scripts Python et génère l'interface.main.py : Script de contrôle principal pour l'exécution des processus Python.data_surf.csv : Le flux de données généré après traitement, servant de base aux visualisations..gitignore : Fichier de configuration pour exclure les fichiers temporaires du dépôt.📊 Pipeline de Données & Logique KPILe tableau de bord transforme les données brutes en indicateurs exploitables:1. Nettoyage des MétriquesLes valeurs numériques sont isolées des chaînes de caractères complexes (unités comme km/h ou m) via une logique de parsing automatique.2. Algorithme "Sea Quality Grade"Une jauge de qualité de la mer est calculée sur une échelle de 100 points selon les critères suivants:+40 si la hauteur de vague $\ge 1.0m$.+30 si la vitesse du vent $\le 50km/h$.+30 si la direction du vent contient "North".🎨 Design de l'InterfaceL'interface utilisateur a été conçue pour être immersive et moderne:Thème Dark Mode : Utilisation du code couleur #001219 (Deep Ocean) pour le confort visuel.Glassmorphism : Effets de flou (backdrop-blur) sur des calques translucides pour une lisibilité optimale sur fonds photographiques.Visualisation Dynamique : Intégration de Plotly pour explorer l'historique et les prévisions sur 7 jours.🚀 Installation et UtilisationPour lancer le dashboard sur votre machine :Clonez le dépôt et assurez-vous que tous les fichiers (.Rmd, .py, .csv) se trouvent dans le même dossier.Installez les dépendances nécessaires (R : flexdashboard, reticulate, plotly ; Python : pandas, requests).Ouvrez Projet_Surf.Rmd dans RStudio.Cliquez sur le bouton Knit pour générer le dashboard interactif au format HTML.Auteurs : Rim BOUAOUISS & Lara AL KHATIB Dernière mise à jour : Janvier 2026 
+# 🏄‍♂️ Surf Dashboard : Lacanau Real-Time Monitoring
+
+[cite_start]Ce projet propose un outil d'aide à la décision haut de gamme pour surveiller les conditions de surf à **Lacanau** en temps réel[cite: 5]. [cite_start]Il automatise l'ensemble du pipeline de données, de l'extraction au rendu visuel[cite: 6].
+
+## ⚙️ Architecture du Projet
+
+[cite_start]Le système utilise une approche hybride combinant la puissance de **Python** et de **R**[cite: 8]:
+
+* [cite_start]**surf_scrap.py** : Moteur de scraping personnalisé ciblant *surf-report.com*[cite: 9]. [cite_start]Il extrait les données directement depuis les objets JSON JavaScript internes[cite: 10].
+* [cite_start]**Projet_Surf.Rmd** : Le cœur de l'application (Flexdashboard) qui orchestre le workflow et génère l'interface[cite: 11, 12].
+* **main.py** : Script de contrôle pour l'exécution des processus Python.
+* [cite_start]**data_surf.csv** : Le flux de données généré servant de base aux visualisations[cite: 11].
+
+## 📊 Pipeline de Données & Logique KPI
+
+[cite_start]Le tableau de bord transforme les données brutes en indicateurs exploitables[cite: 14]:
+
+1.  [cite_start]**Nettoyage des Métriques** : Les valeurs numériques sont isolées des chaînes de caractères complexes (unités comme km/h ou m)[cite: 18].
+2.  [cite_start]**Algorithme "Sea Quality Grade"** : Une jauge de qualité sur **100 points** basée sur la hauteur des vagues, la vitesse et la direction du vent[cite: 21, 23].
+
+## 🎨 Design de l'Interface
+
+[cite_start]L'interface utilisateur a été conçue pour être immersive[cite: 26]:
+* **Thème Dark Mode** : Utilisation du code couleur `#001219` (Deep Ocean)[cite: 27].
+* [cite_start]**Glassmorphism** : Effets de flou sur des calques translucides pour une lisibilité optimale[cite: 28].
+* [cite_start]**Visualisation Dynamique** : Intégration de **Plotly** pour explorer les prévisions sur 7 jours[cite: 29].
+
+## 🚀 Installation et Utilisation
+
+1.  [cite_start]Placez tous les fichiers dans le même répertoire[cite: 32].
+2.  [cite_start]Ouvrez **Projet_Surf.Rmd** dans RStudio[cite: 33].
+3.  [cite_start]Cliquez sur **Knit** pour générer le dashboard HTML[cite: 34].
+
+---
+[cite_start]**Auteurs :** Rim BOUAOUISS & Lara AL KHATIB [cite: 2]  
+[cite_start]**Dernière mise à jour :** Janvier 2026 [cite: 4]
