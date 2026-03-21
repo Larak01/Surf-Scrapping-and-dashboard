@@ -48,7 +48,4 @@ Pour lancer le dashboard sur votre machine :
 2.  Ouvrez **Projet_Surf.Rmd** dans RStudio.
 3.  Exécutez la commande **Knit** pour générer le dashboard interactif au format HTML.
 
----
 
-**Développeurs :** Rim BOUAOUISS & Lara AL KHATIB  
-**Date :** Janvier 2026
